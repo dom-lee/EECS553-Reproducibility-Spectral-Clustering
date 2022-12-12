@@ -3,19 +3,25 @@ This repository is for reproducibility project from EECS553 (Machine Leaning)
 Course. We verified the paper "A Tighter Analysis of Spectral Clustering, and
 Beyond", published in ICML 2022.
 
-## Additional Test that we excecuted
-1. **Less-separated Synthetic Dataset**: run
-`python experiments.py complete`
+## Additional Experiments
+1. **Less-separated Synthetic Dataset**:
+run `python experiments.py complete`
 - Change 'r' value at https://github.com/dom-lee/EECS553-Reproducibility-Spectral-Clustering/blob/06541f4ec59481cefdc981144c0b80f75715a451/pysc/datasets.py#L379
 
-2. **Test on BSDS dataset with different standard deviation**: run
-`python experiments.py bsds`
+2. **Test on BSDS dataset with different parameters**:
+run `python experiments.py bsds`
 - We set break condition to cluster only 25 images
 - 
 
-3. **Test on MNIST dataset with different number of eigenvector for embedding**:
-   run
+3. **Test on MNIST dataset with different parameters**:
+run `python experiments.py mnist`
+- Change parameter k to construct different K-NN graph
+https://github.com/dom-lee/EECS553-Reproducibility-Spectral-Clustering/blob/14495ab4c592ec1349e059b60f3e594dd612fda3/experiments.py#L95
+- Test different number of eigenvectors 
 
+4. **Check the performance of Spectral Clustering with fewer eigenvectors after
+   reducing dimensionality through Sketching
+- 
 
 
 # Beyond Spectral Clustering

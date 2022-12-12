@@ -21,6 +21,20 @@ import pysc.evaluation
 import pysc.objfunc
 from pysc.sclogging import logger
 
+### Function added by EECS 553- Group 17
+def sub_process(dataset,k,num_eigenvalues: int, q):
+    logger.info(f"Starting clustering: {dataset} with {num_eigenvalues} eigenvalues.")
+    start_time = time.time()
+    found_clusters = sgtl.clustering.spectral_clustering(dataset.graph, num_clusters=k,
+                                                              num_eigenvectors=num_eigenvalues)
+    end_time = time.time()
+    total_time = end_time - start_time
+    logger.info(f"Finished clustering: {dataset} with {num_eigenvalues} eigenvalues.")
+    this_rand_score = pysc.evaluation.adjusted_rand_index(dataset.gt_labels, found_clusters)
+    this_mutual_info = pysc.evaluation.mutual_information(dataset.gt_labels, found_clusters)
+    this_conductance = pysc.objfunc.KWayExpansion.apply(dataset.graph, found_clusters)
+    q.put((num_eigenvalues, this_rand_score, this_mutual_info, this_conductance, total_time))
+
 
 def basic_experiment(dataset, k):
     """
@@ -386,6 +400,10 @@ def run_bsds_experiment(image_id=None):
     for i, file in enumerate(image_files):
         id = file.split(".")[0]
 
+        # [Jeongtaek Chang] Break condition
+        if i >= 25:
+            break
+        
         # Ignore any images we've already tried.
         if os.path.exists(output_directory + id + ".mat"):
             logger.debug(f"Skipping image {file} - output already exists.")

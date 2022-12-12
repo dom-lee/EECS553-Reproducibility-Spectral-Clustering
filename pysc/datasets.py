@@ -107,6 +107,10 @@ class Dataset(object):
                 self.graph = sgtl.graph.knn_graph(self.raw_data, k)
             elif graph_type[:3] == "rbf":
                 logger.info(f"Constructing the RBF graph for {self}...")
+
+                # [Jeongtaek Chang] Change variance to construct graph with
+                # different edge weights 
+                # Variance = {10, 20, 40}
                 self.graph = sgtl.graph.rbf_graph(self.raw_data, variance=20)
         else:
             logger.debug(f"Skipping constructing graph for the {self.__class__.__name__}.")
@@ -184,6 +188,12 @@ class MnistDataset(Dataset):
                 # Normalise each number to be between 0 and 1 by dividing through by 255.
                 self.raw_data = numpy.reshape(train_x, (len(train_x), -1))
                 self.raw_data = self.raw_data / 255
+                
+                # [Sachin Garg] Change alpha for different sketch sizes
+                # Uncomment for sketching
+                print("Old sketch size, ", np.shape(self.raw_data))
+                # self.raw_data = Sketch(self.raw_data.T, _type_="SHRT", alpha=0.2).T
+                print("Sketch Size: ", np.shape(self.raw_data))
 
             # Set the total number of data points.
             self.num_data_points = len(train_x)
@@ -268,6 +278,12 @@ class UspsDataset(Dataset):
                 # Normalise each number to be between 0 and 1 by dividing through by 255.
                 self.raw_data = numpy.reshape(self.raw_data, (self.num_data_points, -1))
                 self.raw_data = self.raw_data / 255
+
+                # [Sachin Garg] Change alpha for different sketch sizes
+                # Uncomment for sketching
+                print("Old sketch size, ", np.shape(self.raw_data))
+                # self.raw_data = Sketch(self.raw_data.T, _type_="SHRT", alpha=0.2).T
+                print("Sketch Size: ", np.shape(self.raw_data))
 
     def load_gt_clusters(self, gt_clusters_file):
         """
