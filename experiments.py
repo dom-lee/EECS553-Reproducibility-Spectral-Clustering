@@ -140,12 +140,15 @@ def run_usps_experiment():
 ############################################
 class SBMJobRunner(Process):
 
-    def __init__(self, k, n, prob_p, prob_q, queue, num_runs=1, use_grid=False, **kwargs):
+    def __init__(self, k, n, prob_p, prob_q, queue, num_runs=1, use_grid=False,
+                 use_complete=False, unequal_cluster=False, **kwargs):
         super(SBMJobRunner, self).__init__(**kwargs)
         self.k, self.n, self.prob_p, self.prob_q = k, n, prob_p, prob_q
         self.queue = queue
         self.num_runs = num_runs
         self.use_grid = use_grid
+        self.use_complete = use_complete
+        self.unequal_cluster = unequal_cluster
         self.d = self.k
         if use_grid:
             self.k = self.d * self.d
@@ -156,8 +159,14 @@ class SBMJobRunner(Process):
         total_rand_scores = [0] * self.k
 
         for run_no in range(self.num_runs):
-            if self.use_grid:
+            if self.use_grid and self.unequal_cluster:
+                dataset = pysc.datasets.SbmUnequalGridDataset(d=self.d, n=self.n, p=self.prob_p, q=self.prob_q)
+            elif self.use_grid:
                 dataset = pysc.datasets.SBMGridDataset(d=self.d, n=self.n, p=self.prob_p, q=self.prob_q)
+            elif self.use_complete:
+                dataset = pysc.datasets.SbmCompleteDataset(k=self.k, n=self.n, p=self.prob_p, q=self.prob_q)
+            elif self.unequal_cluster:
+                dataset = pysc.datasets.SbmUnequalCycleDataset(k=self.k, n=self.n, p=self.prob_p, q=self.prob_q)
             else:
                 dataset = pysc.datasets.SbmCycleDataset(k=self.k, n=self.n, p=self.prob_p, q=self.prob_q)
             logger.info(f"Starting experiment: {dataset}, run number {run_no}")
@@ -184,7 +193,8 @@ class SBMJobRunner(Process):
         self.queue.put(None)
 
 
-def run_sbm_experiment(n, k, prob_p, use_grid=False):
+def run_sbm_experiment(n, k, prob_p, use_grid=False, use_complete=False,
+                       unequal_cluster=False):
     logger.info(f"Running experiment with SBM data.")
 
     # For each set of SBM parameters, run 10 times.
@@ -192,16 +202,25 @@ def run_sbm_experiment(n, k, prob_p, use_grid=False):
 
     # Start all of the sub-processes to do the clustering with different numbers of eigenvalues
     processes = []
-    if use_grid:
+    if use_grid and unequal_cluster:
+        results_filename = "results/sbm/grid_unequal_results.csv"
+    elif use_grid:
         results_filename = "results/sbm/grid_results.csv"
+    elif use_complete:
+        results_filename = "results/sbm/complete_results.csv"
+    elif unequal_cluster:
+        results_filename = "results/sbm/cycle_unequal_results.csv"
     else:
         results_filename = "results/sbm/cycle_results.csv"
+
     with open(results_filename, 'w') as fout:
         fout.write("k, n, p, q, poverq, eigenvectors, conductance, rand\n")
         fout.flush()
         for prob_q in numpy.linspace(prob_p / 10, prob_p, num=10):
             q = Queue()
-            p = SBMJobRunner(k, n, prob_p, prob_q, q, num_runs=num_runs, use_grid=use_grid)
+            p = SBMJobRunner(k, n, prob_p, prob_q, q, num_runs=num_runs,
+                             use_grid=use_grid, use_complete=use_complete,
+                             unequal_cluster=unequal_cluster)
             p.start()
             processes.append(p)
 
@@ -395,9 +414,13 @@ def run_bsds_experiment(image_id=None):
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Run the experiments.')
-    parser.add_argument('experiment', type=str, choices=['cycle', 'grid', 'mnist', 'usps', 'bsds'],
+    parser.add_argument('experiment', type=str,
+                        choices=['cycle', 'grid', 'cycle_unequal', 'grid_unequal',
+                                 'complete', 'mnist', 'usps', 'bsds'],
                         help="which experiment to perform")
-    parser.add_argument('bsds_image', type=str, nargs='?', help="(optional) the BSDS ID of a single BSDS image file to segment")
+    parser.add_argument('bsds_image', type=str, nargs='?',
+                        help="(optional) the BSDS ID of a single " \
+                             "BSDS image file to segment")
     return parser.parse_args()
 
 
@@ -405,9 +428,15 @@ def main():
     args = parse_args()
 
     if args.experiment == 'cycle':
-        run_sbm_experiment(1000, 10, 0.01)
+        run_sbm_experiment(1000, 5, 0.01)
+    elif args.experiment == 'cycle_unequal':
+        run_sbm_experiment([100, 120, 140, 160, 180, 200], 6, 0.01, unequal_cluster=True)
     elif args.experiment == 'grid':
-        run_sbm_experiment(1000, 4, 0.01, use_grid=True)
+        run_sbm_experiment(1000, 5, 0.01, use_grid=True)
+    elif args.experiment == 'grid_unequal':
+        run_sbm_experiment([100 + 20 * i for i in range(4*4)], 4, 0.01, use_grid=True, unequal_cluster=True)
+    elif args.experiment == 'complete':
+        run_sbm_experiment(100, 5, 0.2, use_complete=True)
     elif args.experiment == 'mnist':
         run_mnist_experiment()
     elif args.experiment == 'usps':

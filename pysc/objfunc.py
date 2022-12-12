@@ -58,6 +58,7 @@ class KWayExpansion(ClusteringObjectiveFunction):
                     conductances.append(graph.conductance(cluster))
                 else:
                     conductances.append(1)
+
         except ZeroDivisionError:
             # In the case of a zero division error, it must be that one of the clusters is empty, return 1
             return 1

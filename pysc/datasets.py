@@ -362,6 +362,109 @@ class SBMGridDataset(Dataset):
         return self.__str__()
 
 
+class SbmCompleteDataset(Dataset):
+
+    def __init__(self, *args, k=6, n=50, p=0.3, q=0.05, **kwargs):
+        self.k, self.n, self.p, self.q = k, n, p, q
+        super(SbmCompleteDataset, self).__init__(self, *args, num_data_points=(n * k), **kwargs)
+
+    def load_data(self, data_file):
+        # The SBM dataset has no data
+        pass
+
+    def load_graph(self, graph_file=None, graph_type="knn10"):
+        # Generate the graph from the sbm
+        logger.info(f"Generating {self} graph from sbm...")
+        prob_mat = self.p * sp.sparse.eye(self.k) + \
+                   self.q * sgtl.graph.complete_graph(self.k).adjacency_matrix()
+        self.graph = sgtl.random.sbm_equal_clusters(self.n * self.k, self.k,
+                                                    prob_mat.toarray())
+
+    def load_gt_clusters(self, gt_clusters_file):
+        logger.info(f"Loading GT clusters for {self}...")
+
+        # We can just generate the ground truth clusters as needed
+        self.gt_clusters = [list(range(i * self.n, (i * self.n) + self.n)) for i in range(self.k)]
+        self.gt_labels = []
+        for cluster in range(self.k):
+            for _ in range(self.n):
+                self.gt_labels.append(cluster)
+
+    def __str__(self):
+        return f"sbmComplete({self.k}, {self.n}, {self.p}, {self.q})"
+
+    def __repr__(self):
+        return self.__str__()
+
+
+class SbmUnequalCycleDataset(Dataset):
+
+    def __init__(self, *args, k=6, n=[10, 20, 30, 40, 50, 60], p=0.3, q=0.05, **kwargs):
+        self.k, self.n, self.p, self.q = k, n, p, q
+        super(SbmUnequalCycleDataset, self).__init__(self, *args, num_data_points=sum(n), **kwargs)
+
+    def load_data(self, data_file):
+        # The SBM dataset has no data
+        pass
+
+    def load_graph(self, graph_file=None, graph_type="knn10"):
+        # Generate the graph from the sbm
+        logger.info(f"Generating {self} graph from sbm...")
+        prob_mat = self.p * sp.sparse.eye(self.k) + \
+                   self.q * sgtl.graph.cycle_graph(self.k).adjacency_matrix()
+        self.graph = sgtl.random.sbm(self.n, prob_mat.toarray())
+
+    def load_gt_clusters(self, gt_clusters_file):
+        logger.info(f"Loading GT clusters for {self}...")
+
+        # We can just generate the ground truth clusters as needed
+        self.gt_clusters = [list(range(sum(self.n[:i]), sum(self.n[:i+1]))) for i in range(self.k)]
+        self.gt_labels = []
+        for cluster in range(self.k):
+            for _ in range(self.n[cluster]):
+                self.gt_labels.append(cluster)
+
+    def __str__(self):
+        return f"sbmUnequalCycle({self.k}, {self.n}, {self.p}, {self.q})"
+
+    def __repr__(self):
+        return self.__str__()
+
+
+class SbmUnequalGridDataset(Dataset):
+
+    def __init__(self, *args, d=3, n=[10, 20, 30, 40, 50, 60, 70, 80, 90], p=0.3, q=0.05, **kwargs):
+        self.d, self.n, self.p, self.q = d, n, p, q
+        super(SbmUnequalGridDataset, self).__init__(self, *args, num_data_points=sum(n), **kwargs)
+
+    def load_data(self, data_file):
+        # The SBM dataset has no data
+        pass
+
+    def load_graph(self, graph_file=None, graph_type="knn10"):
+        # Generate the graph from the sbm
+        logger.info(f"Generating {self} graph from sbm...")
+        prob_mat = self.p * sp.sparse.eye(self.d * self.d) + self.q * \
+            networkx.to_numpy_matrix(grid_graph((self.d, self.d)))
+        self.graph = sgtl.random.sbm(self.n, prob_mat.tolist())
+
+    def load_gt_clusters(self, gt_clusters_file):
+        logger.info(f"Loading GT clusters for {self}...")
+
+        # We can just generate the ground truth clusters as needed
+        self.gt_clusters = [list(range(sum(self.n[:i]), sum(self.n[:i+1]))) for
+                i in range(self.d * self.d)]
+        self.gt_labels = []
+        for cluster in range(self.d * self.d):
+            for _ in range(self.n[cluster]):
+                self.gt_labels.append(cluster)
+
+    def __str__(self):
+        return f"sbmUnequalGrid({self.d}, {self.n}, {self.p}, {self.q})"
+
+    def __repr__(self):
+        return self.__str__()
+
 class BSDSDataset(Dataset):
 
     def __init__(self, img_idx, *args, downsample_factor=None,
