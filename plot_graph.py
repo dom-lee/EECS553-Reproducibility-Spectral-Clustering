@@ -23,6 +23,10 @@ def main():
         dataset = pysc.datasets.SBMGridDataset(d=4, n=1000, p=0.01, q=0.001)
     elif args.experiment == 'complete':
         dataset = pysc.datasets.SbmCompleteDataset(k=5, n=100, p=0.2, q=0.01)
+    elif args.experiment == 'mnist':
+        dataset = pysc.datasets.MnistDataset(k=3, downsample=None)
+    elif args.experiment == 'usps':
+        dataset = pysc.datasets.UspsDataset(k=3, downsample=None)
 
     # Draw
     dataset.graph.draw()

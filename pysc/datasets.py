@@ -392,7 +392,7 @@ class SbmCompleteDataset(Dataset):
     def load_graph(self, graph_file=None, graph_type="knn10"):
         # Generate the graph from the sbm
         logger.info(f"Generating {self} graph from sbm...")
-        r = self.q * 0.9
+        r = self.q * 0.1
         prob_mat = self.p * sp.sparse.eye(self.k) + \
                    (self.q - r) * sgtl.graph.cycle_graph(self.k).adjacency_matrix() + \
                    r * sgtl.graph.complete_graph(self.k).adjacency_matrix()

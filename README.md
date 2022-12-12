@@ -1,29 +1,45 @@
-# EECS-553-Machine Learning (Reproducibility Project)
+# EECS553 (ML) Reproducibility Project
 This repository is for reproducibility project from EECS553 (Machine Leaning)
 Course. We verified the paper "A Tighter Analysis of Spectral Clustering, and
 Beyond", published in ICML 2022.
 
 ## Additional Experiments
 1. **Less-separated Synthetic Dataset**:
-run `python experiments.py complete`
-- Change 'r' value at https://github.com/dom-lee/EECS553-Reproducibility-Spectral-Clustering/blob/06541f4ec59481cefdc981144c0b80f75715a451/pysc/datasets.py#L379
+- run `python experiments.py complete`
+    - Change `r` value at https://github.com/dom-lee/EECS553-Reproducibility-Spectral-Clustering/blob/06541f4ec59481cefdc981144c0b80f75715a451/pysc/datasets.py#L395
+    - Plot Results: run `python plot_results.py` in the folder https://github.com/dom-lee/EECS553-Reproducibility-Spectral-Clustering/tree/reproducibility/results/sbm
 
 2. **Test on BSDS dataset with different parameters**:
-run `python experiments.py bsds`
-- We set break condition to cluster only 25 images
-- 
+- run `python experiments.py bsds`
+    - We set break condition to cluster only 25 images
+    - Change `variance` at https://github.com/dom-lee/EECS553-Reproducibility-Spectral-Clustering/blob/0ecdd24d48188c51d7a5d71b165d14e00f70e609/pysc/datasets.py#L114 
 
 3. **Test on MNIST dataset with different parameters**:
-run `python experiments.py mnist`
-- Change parameter k to construct different K-NN graph
-https://github.com/dom-lee/EECS553-Reproducibility-Spectral-Clustering/blob/14495ab4c592ec1349e059b60f3e594dd612fda3/experiments.py#L95
-- Test different number of eigenvectors 
+- run `python experiments.py mnist`
+    - Change parameter k to construct different K-NN graph
+    https://github.com/dom-lee/EECS553-Reproducibility-Spectral-Clustering/blob/14495ab4c592ec1349e059b60f3e594dd612fda3/experiments.py#L94
+    - Test different number of eigenvectors 
+    https://github.com/dom-lee/EECS553-Reproducibility-Spectral-Clustering/blob/14495ab4c592ec1349e059b60f3e594dd612fda3/experiments.py#L108
 
 4. **Check the performance of Spectral Clustering with fewer eigenvectors after
-   reducing dimensionality through Sketching
-- 
+   reducing dimensionality through Sketching**
+- check `sketch.py` for sketch algorithm
+- **MNIST**
+    - Uncomment https://github.com/dom-lee/EECS553-Reproducibility-Spectral-Clustering/blob/0ecdd24d48188c51d7a5d71b165d14e00f70e609/pysc/datasets.py#L195 
+    - run `python experiments.py mnist`
+- **USPS**
+    - Uncomment https://github.com/dom-lee/EECS553-Reproducibility-Spectral-Clustering/blob/0ecdd24d48188c51d7a5d71b165d14e00f70e609/pysc/datasets.py#L285
+    - run `python experiments.py usps`
 
+5. **Visualize Graph** (Synthetic Dataset, MNIST, USPS)
+- run `python plot_graph.py complete`
+- run `python plot_graph.py mnist`
+- run `python plot_graph.py usps`
 
+<br/>
+<br/>
+
+# Original README
 # Beyond Spectral Clustering
 This directory contains the code to reproduce the results in the paper "A Tighter Analysis of Spectral Clustering, and Beyond", published in 
 ICML 2022.
