@@ -1,5 +1,23 @@
-# Beyond Spectral Clustering
+# EECS-553-Machine Learning (Reproducibility Project)
+This repository is for reproducibility project from EECS553 (Machine Leaning)
+Course. We verified the paper "A Tighter Analysis of Spectral Clustering, and
+Beyond", published in ICML 2022.
 
+## Additional Test that we excecuted
+1. **Less-separated Synthetic Dataset**: run
+`python experiments.py complete`
+- 
+
+2. **Test on BSDS dataset with different standard deviation**: run
+`python experiments.py bsds`
+- 
+
+3. **Test on MNIST dataset with different number of eigenvector for embedding**:
+   run
+
+
+
+# Beyond Spectral Clustering
 This directory contains the code to reproduce the results in the paper "A Tighter Analysis of Spectral Clustering, and Beyond", published in 
 ICML 2022.
 

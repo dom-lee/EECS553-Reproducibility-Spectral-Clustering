@@ -147,8 +147,12 @@ class SBMJobRunner(Process):
         self.queue = queue
         self.num_runs = num_runs
         self.use_grid = use_grid
-        self.use_complete = use_complete
+
+        # [Dongmyeong Lee] Additianl condition to generate synthetic dataset,
+        #                  which is less-separated clusters
+        self.use_complete = use_complete 
         self.unequal_cluster = unequal_cluster
+
         self.d = self.k
         if use_grid:
             self.k = self.d * self.d
@@ -429,14 +433,20 @@ def main():
 
     if args.experiment == 'cycle':
         run_sbm_experiment(1000, 5, 0.01)
+    # [Dongmyeong Lee] Generate Unbalanced Clusters that form Cyclic Structure
     elif args.experiment == 'cycle_unequal':
         run_sbm_experiment([100, 120, 140, 160, 180, 200], 6, 0.01, unequal_cluster=True)
     elif args.experiment == 'grid':
         run_sbm_experiment(1000, 5, 0.01, use_grid=True)
+    # [Dongmyeong Lee] Generate Unbalanced Clusters that form Grid Structure
     elif args.experiment == 'grid_unequal':
         run_sbm_experiment([100 + 20 * i for i in range(4*4)], 4, 0.01, use_grid=True, unequal_cluster=True)
+    # [Dongmyeong Lee] Generate Less-separated Clusters that similar to Cyclic Structure
+    # p: probability of having edges between nodes in same cluster
+    # q: probability of having edges between nodes in adjacent clusters
+    # r: probability of having edges between nodes in non-adjacent clusters // Inside SbmCompleteDataset Class
     elif args.experiment == 'complete':
-        run_sbm_experiment(100, 5, 0.2, use_complete=True)
+        run_sbm_experiment(1000, 5, 0.01, use_complete=True)
     elif args.experiment == 'mnist':
         run_mnist_experiment()
     elif args.experiment == 'usps':

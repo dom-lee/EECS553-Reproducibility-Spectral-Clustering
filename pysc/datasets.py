@@ -361,7 +361,8 @@ class SBMGridDataset(Dataset):
     def __repr__(self):
         return self.__str__()
 
-
+# [Dongmyeong Lee] New Dataset Class for generating less-separated Clusters
+#                  Manually changed r {0.1, 0.3, 0.5, 0.7, 0.9}
 class SbmCompleteDataset(Dataset):
 
     def __init__(self, *args, k=6, n=50, p=0.3, q=0.05, **kwargs):
@@ -375,8 +376,10 @@ class SbmCompleteDataset(Dataset):
     def load_graph(self, graph_file=None, graph_type="knn10"):
         # Generate the graph from the sbm
         logger.info(f"Generating {self} graph from sbm...")
+        r = self.q * 0.9
         prob_mat = self.p * sp.sparse.eye(self.k) + \
-                   self.q * sgtl.graph.complete_graph(self.k).adjacency_matrix()
+                   (self.q - r) * sgtl.graph.cycle_graph(self.k).adjacency_matrix() + \
+                   r * sgtl.graph.complete_graph(self.k).adjacency_matrix()
         self.graph = sgtl.random.sbm_equal_clusters(self.n * self.k, self.k,
                                                     prob_mat.toarray())
 
@@ -396,7 +399,8 @@ class SbmCompleteDataset(Dataset):
     def __repr__(self):
         return self.__str__()
 
-
+# [Dongmyeong Lee] New Synthetic Dataset to generate unbalanaced clusters that
+# form Cylcic Structure
 class SbmUnequalCycleDataset(Dataset):
 
     def __init__(self, *args, k=6, n=[10, 20, 30, 40, 50, 60], p=0.3, q=0.05, **kwargs):
@@ -431,6 +435,8 @@ class SbmUnequalCycleDataset(Dataset):
         return self.__str__()
 
 
+# [Dongmyeong Lee] New Synthetic Dataset to generate unbalanaced clusters that
+# form Grid Structure
 class SbmUnequalGridDataset(Dataset):
 
     def __init__(self, *args, d=3, n=[10, 20, 30, 40, 50, 60, 70, 80, 90], p=0.3, q=0.05, **kwargs):
