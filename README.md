@@ -6,10 +6,11 @@ Beyond", published in ICML 2022.
 ## Additional Test that we excecuted
 1. **Less-separated Synthetic Dataset**: run
 `python experiments.py complete`
-- 
+- Change 'r' value at https://github.com/dom-lee/EECS553-Reproducibility-Spectral-Clustering/blob/06541f4ec59481cefdc981144c0b80f75715a451/pysc/datasets.py#L379
 
 2. **Test on BSDS dataset with different standard deviation**: run
 `python experiments.py bsds`
+- We set break condition to cluster only 25 images
 - 
 
 3. **Test on MNIST dataset with different number of eigenvector for embedding**:

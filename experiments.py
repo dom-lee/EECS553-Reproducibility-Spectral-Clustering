@@ -88,23 +88,26 @@ def run_mnist_experiment():
             pysc.datasets.MnistDataset(k=nn, downsample=d), 10)
         q.put((d, nn, this_rand_scores, this_mut_info, this_conductances, this_times))
 
-    # We will construct the 3-NN graph for the MNIST dataset.
-    k = 3
+    # # We will construct the 3-NN graph for the MNIST dataset.
+    # k = 3
 
-    # Kick off the experiment in a sub-process.
-    q = Queue()
-    p = Process(target=experiment_instance, args=(None, k, q))
-    p.start()
-    p.join()
+    # [Hyungchan Cho] We changed k parameter from 3 to 21 to generate Graph with KNN
+    for k in range(3, 21):
+        # Kick off the experiment in a sub-process.
+        q = Queue()
+        p = Process(target=experiment_instance, args=(None, k, q))
+        p.start()
+        p.join()
 
-    # Write out the results
-    with open("results/mnist/results.csv", 'w') as fout:
-        fout.write("k, d, eigenvectors, rand\n")
+        # Write out the results
+        with open(f"results/mnist/results_k.csv", 'w') as fout:
+            fout.write("k, d, eigenvectors, rand\n")
 
-        while not q.empty():
-            downsample, k, rand_scores, _, _, _ = q.get()
-            for i in range(2, 11):
-                fout.write(f"{k}, {downsample}, {i}, {rand_scores[i]}\n")
+            while not q.empty():
+                downsample, k, rand_scores, _, _, _ = q.get()
+                # [Hyungchan Cho] Tested k eigenvectors from 2 to 21
+                for i in range(2, 21):
+                    fout.write(f"{k}, {downsample}, {i}, {rand_scores[i]}\n")
 
 
 def run_usps_experiment():
